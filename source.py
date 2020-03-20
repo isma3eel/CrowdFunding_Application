@@ -232,23 +232,6 @@ def date_search(email):
 
 
 
-    # for i in range (len(data)):
-    #     pass
-
-    # x = input("Enter the date: ")
-    # day, month, year = map(int, x.split("-"))
-
-    # day, month, year = map(int, dates[0][0].split("-"))
-    # date1 = datetime(year, month, day)
-
-    # d1 = date(2020, 5, 1)
-    # d2 = date(2020, 4, 28)
-    # d3 = date(2020, 7, 9)
-    #
-    # if d3>d2>d1:
-    #     print("YESSS")
-    # else:
-    #     print("NOOO")
 
 def string_search(file_name, search_str, chk):
     """Search for a specific string inside a file
