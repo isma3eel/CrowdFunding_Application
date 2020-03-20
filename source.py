@@ -1,5 +1,6 @@
 import os
-
+from datetime import date, datetime, timedelta
+import datetime
 
 def application_register():
     """Users signup for the crowd funding application with the data of fullName,
@@ -20,7 +21,7 @@ def application_register():
         email = input("Please Enter your Email: ")
         try:
             if string_search(file_name, email, True):
-                print("Email Already Taken")
+                print("This email is already taken")
                 email = ""
         except FileNotFoundError:
             pass
@@ -95,7 +96,7 @@ def file_check(login_data):
     file_name = "User Data.txt"
     file_obj = open(file_name, "r")
     line = string_search(file_name, login_data[0], False)
-    print(line)
+    # print(line)
     data_split = line.split("-  -")
     user_info = [data_split[2], data_split[3]]
 
@@ -112,13 +113,16 @@ def file_check(login_data):
 def user_entry(email):
     """After Successful login user is asked for more options inside the app """
 
-    print("Login Successfully\n.........................\n")
+    print("\nLogin Successfully\n-------------------------------\n")
     print("What do you like to do?")
     choice = int(input("1-Create a new project        2-View and edit already existed projects\n"))
     if choice == 1:
         project_creation(email)
     elif choice == 2:
-        project_edit(email)
+        if len(view_all_projects(email)[0]) != 0:
+            project_edit(email)
+        else:
+            print("There are no created projects")
     else:
         print("Wrong Choice !")
 
@@ -140,22 +144,27 @@ def project_creation(email):
 
 def project_edit(email):
 
-    choice = int(input("1-View All Projects\n2-Edit Projects\n3-Delete Projects\n4-Search for a project using s specific keyword\n"))
+    choice = int(input("1-View all projects with details \n2-Search for a project using date\n3-Delete project\n"))
+
     if choice == 1:
-        view = view_all_projects(email)[0]
-        for i in range(len(view)):
-            print(view[i][1])
-    if choice == 2:
-        pass
-    if choice == 3:
+        data = view_all_projects(email)[0]
+        for i in range(len(data)):
+            print(i+1,"- ", data[i][1],"    AIM: ",data[i][3],"EGP")
+            print("----------------------------------------------------------")
+            print(data[i][2])
+            print("From:",data[i][4],"          To:",data[i][5],"\n")
+
+    elif choice == 2:
+        date_search(email)
+    elif choice == 3:
         delete_project(email)
-    if choice == 4:
-        pass
+    else:
+        print("Wrong Choice")
 
 
 def view_all_projects(email):
     """Used to search for the projects submitted by a specific user using the email address
-    as a parameter. it returns the list of lists of things done by user and also line numbers"""
+    as a parameter. it returns the list of projects done by user and also line number of the project in .txt file"""
 
     i = 0
     line_number = []
@@ -171,14 +180,75 @@ def view_all_projects(email):
     return lines,line_number
 
 
-
 def delete_project(email):
+    """Function Can be used to erase all the projects previously made by this user
+    line_number of the user projects inside the Project Data.txt file is the second return from view_all_projects function"""
+
+    data = view_all_projects(email)[0]
     line_number = view_all_projects(email)[1]
-    with open("Project Data.txt", "r") as read_obj:
-        for line in read_obj:
-            print(line)
+
+    print("You've created",len(line_number),"projects")
+
+    for i in range(len(data)):
+            print(i+1,"- ", data[i][1],"    AIM: ",data[i][3],"EGP")
+            print("----------------------------------------------------------")
+
+    select = int(input("Which one would you like to delete ? \n"))
+    select -= 1
+    select = line_number[select]
+
+    count = 0
+    with open("Project Data.txt", "r") as f:
+        lines = f.readlines()
+
+    with open("Project Data.txt", "w") as f:
+        for line in lines:
+            if count != select:
+                f.write(line)
+                f.write("\n")
+            count += 1
+
+    print("The project is deleted...\n")
 
 
+def date_search(email):
+    data = view_all_projects(email)[0]
+    line_number = view_all_projects(email)[1]
+    dates = []
+    splits = []
+
+    for i in range (len(data)):
+        dates.append([data[i][4], data[i][5]])
+        # day, month, year = map(int, dates[0][0].split("-"))
+
+    for i in range(len(dates)):
+        for j in range(len(dates)):
+            print(dates[i][j])
+            splits.append(dates[i][j].split("-"))
+
+
+    print(splits)
+    print(len(splits))
+
+
+
+    # for i in range (len(data)):
+    #     pass
+
+    # x = input("Enter the date: ")
+    # day, month, year = map(int, x.split("-"))
+
+    # day, month, year = map(int, dates[0][0].split("-"))
+    # date1 = datetime(year, month, day)
+
+    # d1 = date(2020, 5, 1)
+    # d2 = date(2020, 4, 28)
+    # d3 = date(2020, 7, 9)
+    #
+    # if d3>d2>d1:
+    #     print("YESSS")
+    # else:
+    #     print("NOOO")
 
 def string_search(file_name, search_str, chk):
     """Search for a specific string inside a file
@@ -193,8 +263,9 @@ def string_search(file_name, search_str, chk):
                 return line
 
 
-
 def main():
+    """Make sure to change the directory before doing anything and then run"""
+
     os.chdir("C:\\Users\Isma3el\PycharmProjects\iti_crowdFunding\saves")
     print("Welcome to CrowdFunding application\n")
     done = False
@@ -207,18 +278,21 @@ def main():
         elif choice == "2":
             # return True and email from successful login
             lo_return = application_login()
-            if lo_return[0]:
-                user_entry(lo_return[1])
-            else:
-                done = True
+            try:
+                if lo_return[0]:
+                    user_entry(lo_return[1])
+            except:
+                pass
             done = True
         elif choice == "3":
             print("Testing")
+            email = "ahmedesmail96@gmail.com"
             # line = string_search("Project Data.txt", "zzidan@outlook.com", False)
             # splits = line.split("-  -")
             # print(splits)
             # view_all_projects("zzidan@outlook.com")
-            delete_project("zzidan@outlook.com")
+            # delete_project("zzidan@outlook.com")
+            date_search(email)
             done = True
         else:
             print("Wrong choice")
